@@ -121,9 +121,11 @@ string       :: "\"" stringChar* "\""
 symbol       :: ":" (not whitespace)+
 
 brackets  :: "(" | ")" | "{" | "}"
-symbols   :: "|" | ":" | "."
-nameStart :: not (digit | whitespace | brackets | symbols)
-nameRest  :: not (whitespace | brackets)
+symbols   :: '!' | '@' | '#' | '$' | '%' | '&' | '*' | '-' | '_' | '='
+           | '+' | '^' | '~' | '?' | '/' | '>' | '<'
+letter    :: "a" .. "z" | "A" .. "Z"           
+nameStart :: symbols | letter
+nameRest  :: symbols | letter | digit
 name      :: nameStart nameRest*
 
 cons :: "(" expr "." expr ")"
