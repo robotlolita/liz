@@ -1,0 +1,10 @@
+{
+  "name": "poliz",
+  "description": "A minimal Lisp dialect.",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "ometajs": "~3.2.4",
+    "ometa-js": "~1.0.3"
+  }
+}

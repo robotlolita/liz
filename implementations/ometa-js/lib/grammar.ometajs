@@ -1,0 +1,56 @@
+// :: string, string, string -> number
+function ToNumber(sign, integral, decimal) {
+  sign    = sign || '+'
+  decimal = decimal || '0'
+
+  return Number(sign + integral + '.' + decimal) }
+
+// :: string -> ['char', string]
+function ToChar(c){
+  return ['char', c] }
+
+// :: a, [a] -> bool
+function has(a, bs) {
+  return bs.indexOf(a) != -1 }
+
+
+ometa LizParser {
+  comment = ';' (~eol anything)*,
+  eol     = '\r' | '\n',
+  space   = ' ' | '\t',
+  ws      = comment | space | eol,
+
+  sign   = '-' | '+',
+  digit  = /\d/,
+  digits = <digit+>,
+  number = sign?:s digits:a ('.' digits)?:b -> [#num, ToNumber(s, a, b)],
+
+  char         = '\\' :c -> [#char, c],
+  stringEscape = '\\' '"',
+  stringChar   = stringEscape
+               | ~'"' anything,
+  string       = '"' stringChar*:cs '"' -> [#list, cs.map(ToChar)],
+  symbol       = ':' <nameRest+>:cs -> [#sym, cs],
+
+  nameSymbols = :c ?(has(c, '!@#$%&*-_=+^~?/<>')) -> c,
+  letter      = /[a-zA-Z]/,
+  nameStart   = nameSymbols | letter,
+  nameRest    = nameSymbols | letter | digit,
+  name        = <nameStart nameRest*>:cs -> [#id, cs],
+
+  cons = '(' ws* expr:a ws+ '.' ws+ expr:b ws* ')' -> [#cons, a, b],
+  list = '(' ws* ')' -> [#list, []]
+       | '(' ws* body:a ws* ')' -> [#list, a],
+
+  lambda   = '{' ws* args?:a ws* body?:b ws* '}' -> [#lambda, a, b],
+  args     = '|' ws* nameList:a (ws+ '.' ws* name)?:b ws* '|' -> (b?[a,b]:[a]),
+  nameList = name:a (ws+ name)*:b -> [a].concat(b),
+
+  body = expr:a (ws+ expr)*:b -> [a].concat(b),
+
+  eval    = '~' value:a -> [#eval, a],
+  value   = lambda | cons | list | number | char | name | symbol | string,
+  expr    = ws* (eval | value),
+  program = expr*
+}
+

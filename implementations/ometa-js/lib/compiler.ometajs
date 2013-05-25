@@ -1,0 +1,95 @@
+// :: {String -> String}
+var SymbolTable = {
+  '!': 'BANG'
+, '@': 'AT'
+, '#': 'POUND'
+, '$': 'DOLLAR'
+, '%': 'PERCENT'
+, '&': 'AND'
+, '*': 'STAR'
+, '-': 'MINUS'
+, '=': 'EQUAL'
+, '+': 'PLUS'
+, '^': 'CIRCUMFLEX'
+, '~': 'TILDE'
+, '?': 'QUESTION'
+, '/': 'SLASH'
+, '<': 'LT'
+, '>': 'GT'
+}
+
+// :: String -> String
+function sanitise(a) {
+  return a.replace(/([^\w_])/g, function(x) {
+    return '$' + (SymbolTable[x] || x.charCodeAt(0)) })}
+
+// :: String -> String
+function makeSymbol(a) {
+  return makeString(a.toLowerCase()) }
+
+// :: a, b -> Cons a b
+function makeCons(a, b){
+  return 'new $cons(' + a + ', ' + b + ')' }
+
+// :: [a] -> String
+function makeVector(as) {
+  return as.reduceRight(function(a, b) {
+                          return makeCons(b, a) }, 'nil')}
+
+// :: string, [a] -> string
+function makeCall(n, as) {
+  return '(' + n + ')(' + as.join(', ') + ')' }
+
+// :: [String], [String] -> String
+function makeLambda(as, b) {
+  var last = b.pop()
+  var init = b.join(';\n')
+  var rest = as.pop()
+  var restBinding = ''
+
+  if (rest) restBinding = 'var ' + rest + ' = [].slice.call(arguments, ' + as.length + ')'
+  if (last) last        = 'return ' + last
+  if (init) init       += ';'
+
+  return '(function(' + as.join(', ') + '){\n'
+       +     restBinding + init + last + '\n})' }
+
+// :: [String], [String] -> String
+function makeFunction(as, b) {
+  var args = makeCons(makeVector(as[0]), as[1])
+  
+  return makeCons('"fn"', makeCons(args, b))
+}
+
+// :: String -> String
+function makeString(a) { 
+  return '"' 
+       + a.replace(/\n/g, '\\n')
+          .replace(/\r/g, '\\r')
+          .replace(/"/g, '\\"') 
+       + '"' }
+
+ometa LizCompiler {
+  args = [[strictEval*:as]]               -> [as, null]
+       | [[strictEval*:as] strictEval?:b] -> [as, b],
+
+  quotedArgs = [[eval*:as]]         -> [as, null]
+             | [[eval*:as] eval?:b] -> [as, b],
+  
+  strictEval = [#id :a]                         -> sanitise(a)
+             | [#list [strictEval:hd eval*:tl]] -> makeCall(hd, tl)
+             | [#lambda args:as [eval*:bs]]     -> makeLambda(as, bs)
+             | eval:a                           -> a,
+
+  eval = [#id :a]                           -> makeString(sanitise(a))
+       | [#num :a]                          -> a
+       | [#char :a]                         -> makeString(a)
+       | [#sym :a]                          -> makeSymbol(a)
+       | [#cons eval:a eval:b]              -> makeCons(a, b)
+       | [#list [eval*:as]]                 -> makeVector(as)
+       | [#lambda quotedArgs:as [eval*:bs]] -> makeFunction(as, bs)
+       | [#eval strictEval:a]               -> a,
+
+
+  cc = [eval*:as] -> as.join(';\n')
+}
