@@ -1,5 +1,5 @@
-polisglot
-=========
+Liz
+===
 
 A minimal dialect of Lisp implemented in as many languages as possible.
 
