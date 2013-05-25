@@ -52,8 +52,7 @@ result of evaluating `c`.
 
 A program is composed of many top-level expressions. Expressions at the
 top-level are evaluated by default, which means that `(a b)` at the top level
-means apply `b` to the macro `a`. Expressions can be quoted by way of the `'`
-special form.
+means apply `b` to the macro `a`.
 
 
 ## Standard library
@@ -134,10 +133,9 @@ lambda :: "{" args? expr* "}"
 args   :: "|" name* ("." name)? "|"
 
 eval    :: "~" value
-quote   :: "'" value
 
 values  :: number | char | name | symbol | string | cons | list | lambda
-expr    :: eval | quote | value
+expr    :: eval | value
 program :: expr*
 ```
 
