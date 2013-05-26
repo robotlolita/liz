@@ -95,7 +95,6 @@ function operative(args, rest, bodyList, lexical) {
   var last = body.pop()
 
   return function() {
-           console.log(':::', arguments)
            var world = clone(lexical)
            args.forEach(defineIn(world, arguments))
            if (rest)  world[rest] = _toList(slice(arguments, args.length))
