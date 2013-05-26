@@ -90,6 +90,64 @@ These are the most important and basic combiners in the language:
 (current-world) → Environment a
 ```
 
+### List primitives
+
+These are the only functions necessary to deal with lists, all the rest can be
+derived from them.
+
+```clj
+;; Returns the first item of a list
+(head xs) → maybe A
+
+;; Returns the rest of a list
+(tail xs) → [A]
+```
+
+### Core predicates
+
+These allows inspection of the basic types, other predicates can be easily
+derived from these:
+
+```clj
+;; Checks if a value is nil
+(null? a) → bool
+
+;; Checks if a value is a list
+(list? a) → bool
+
+;; Checks if a value is an operative
+(operative? a) → bool
+
+;; Checks if a value is an applicative
+(applicative? a) → bool
+
+;; Checks if a value is a number
+(number? a) → bool
+
+;; Checks if a value is a symbol
+(symbol? a) → bool
+```
+
+### Logic operations
+
+These allow branching by way of lambda calculus.
+
+```clj
+;; Returns the expression on the right
+(false consequent alternate) → alternate
+
+;; Returns the expression on the left
+(true consequent alternate) → consequent
+
+;; Checks if two values are equal
+(= a b) → bool
+
+;; Checks if a number is lesser than another
+(< a b) → bool
+
+;; Checks if a number is greater than another
+(> a b) → bool
+```
 
 
 ## Syntax
