@@ -2,6 +2,7 @@
   "name": "poliz",
   "description": "A minimal Lisp dialect.",
   "version": "0.0.0",
+  "bin": "./bin/poliz",
   "private": true,
   "dependencies": {
     "ometajs": "~3.2.4",
