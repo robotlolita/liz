@@ -7,7 +7,7 @@ function ToNumber(sign, integral, decimal) {
 
 // :: string -> ['char', string]
 function ToChar(c){
-  return ['char', c] }
+  return ['char', c.charCodeAt(0)] }
 
 // :: a, [a] -> bool
 function has(a, bs) {
@@ -25,7 +25,7 @@ ometa LizParser {
   digits = <digit+>,
   number = sign?:s digits:a ('.' digits)?:b -> [#num, ToNumber(s, a, b)],
 
-  char         = '\\' :c -> [#char, c],
+  char         = '\\' :c -> ToChar(c),
   stringEscape = '\\' '"',
   stringChar   = stringEscape
                | ~'"' anything,
