@@ -184,9 +184,8 @@ function evaluate(exp, environment) {
 
 
 // -- Core primitives --------------------------------------------------
-world['nil'] = _nil
-world['eval'] = evaluate
-world['wrap'] = wrap
+world['eval']   = evaluate
+world['wrap']   = wrap
 world['unwrap'] = unwrap
 
 world['$define!'] = primitive(function $define(env, name, exp) {
@@ -203,3 +202,30 @@ world['$vau'] = primitive(function $vau(env, formals) {
   var rest = formals.tail == _nil?  null : formals.tail
 
   return operative(args, rest, body, makeEnvironment(env)) })
+
+
+// -- Core predicates --------------------------------------------------
+world['list?']        = isCons
+world['operative?']   = isFunction
+world['applicative?'] = isApplicative
+world['number?']      = function(a){ return classOf(a) === '[object Number]' }
+world['symbol?']      = isSymbol
+
+
+// -- List primitives --------------------------------------------------
+world['nil']  = _nil
+world['head'] = function(as){ return as.head }
+world['tail'] = function(as){ return as.tail }
+
+
+// -- Logic operations -------------------------------------------------
+world['#f'] = function(a, b){ return b }
+world['#t'] = function(a, b){ return a }
+
+world['='] = function(a, b) {
+  return a === b?  world['#t']
+  :                world['#f'] }
+
+world['<'] = function(a, b) {
+  return a < b?  world['#t']
+  :              world['#f'] }
