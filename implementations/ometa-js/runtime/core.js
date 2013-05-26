@@ -91,11 +91,15 @@ function vau(args, rest, bodyList) {
            return evaluate(last, world) }
 }
 
-var world = extend(clone(null), { '$vau'             : vau
-                                , '$define!'         : set
-                                , 'eval'             : evaluate
-                                , 'make-environment' : clone
-                                , 'list'             : list
-                                , 'nil'              : nil
-                                })
-world['world'] = world
+function makeEnvironment(parent) {
+  var env = extend( clone(parent)
+                  , { 'current-world': function(){ return env } })
+  return env }
+
+var world = makeEnvironment(clone(null), { '$vau'             : vau
+                                         , '$define!'         : set
+                                         , 'eval'             : evaluate
+                                         , 'make-environment' : makeEnvironment
+                                         , 'list'             : list
+                                         , 'nil'              : nil
+                                         })
