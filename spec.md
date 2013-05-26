@@ -144,9 +144,6 @@ These allow branching by way of lambda calculus.
 
 ;; Checks if a number is lesser than another
 (< a b) → bool
-
-;; Checks if a number is greater than another
-(> a b) → bool
 ```
 
 
