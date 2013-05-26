@@ -96,6 +96,9 @@ These are the only functions necessary to deal with lists, all the rest can be
 derived from them.
 
 ```clj
+;; The nil special value
+nil
+
 ;; Returns the first item of a list
 (head xs) → maybe A
 
