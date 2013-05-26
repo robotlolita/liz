@@ -6,6 +6,13 @@
   "dependencies": {
     "ometajs": "~3.2.4",
     "flaw": "~0.1.0",
-    "boo": "~2.0.0"
+    "boo": "~2.0.0",
+    "noisyo": "~0.1.1",
+    "pinky-combinators": "~0.1.1",
+    "pinky-for-fun": "~0.2.1",
+    "pinky": "~0.1.2",
+    "athena": "~0.2.0",
+    "ffs": "~0.1.2",
+    "optimist": "~0.5.0"
   }
 }

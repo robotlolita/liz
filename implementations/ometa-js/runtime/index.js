@@ -19,6 +19,12 @@ var slice   = Function.call.bind([].slice)
 var classOf = Function.call.bind({}.toString)
 
 
+// -- Inspecting -------------------------------------------------------
+function inspect(e) {
+  var parent = Object.getPrototypeOf(e)
+  return parent == null?  e
+  :                       boo.merge(parent, e) }
+
 // -- Exception helpers ------------------------------------------------
 function expectType(predicate, name, actual) {
   if (!predicate(actual)) {
@@ -68,6 +74,12 @@ function _tail(as) {
   expectType(isList, 'list', as)
   return isString(as)?     as.slice(1)
   :      /* othewrise */   as.tail }
+
+
+function bool(f) { return function() {
+  var result = f.apply(null, arguments)
+  return result === true?  world['#t']
+  :                        world['#f'] }}
 
 
 // -- Constructing primitives ------------------------------------------
@@ -211,10 +223,17 @@ function evaluate(exp, environment) {
 
 
 // -- Core primitives --------------------------------------------------
-world['eval']   = evaluate
-world['wrap']   = wrap
-world['unwrap'] = unwrap
+world['eval']   = wrap(evaluate)
+world['wrap']   = wrap(function(f) { return wrap(f) })
+world['unwrap'] = wrap(function(f) { return unwrap(f) })
 
+world['inspect'] = wrap(function(v) {
+  if (typeof v == 'function')     console.log(v.toString())
+  else if (typeof v == 'object')  console.log(inspect(v))
+  else                            console.log(JSON.stringify(v))
+
+  return v
+})
 
 world['$define!'] = primitive(function $define(env, name, exp) {
   expectType(isSymbol, 'symbol', name)
@@ -240,11 +259,11 @@ world['read'] = wrap(function read(data) {
 
 
 // -- Core predicates --------------------------------------------------
-world['list?']        = wrap(isList)
-world['operative?']   = wrap(isFunction)
-world['applicative?'] = wrap(isApplicative)
-world['number?']      = wrap(isNumber)
-world['symbol?']      = wrap(isSymbol)
+world['list?']        = wrap(bool(isList))
+world['operative?']   = wrap(bool(isFunction))
+world['applicative?'] = wrap(bool(isApplicative))
+world['number?']      = wrap(bool(isNumber))
+world['symbol?']      = wrap(bool(isSymbol))
 
 
 // -- List primitives --------------------------------------------------
@@ -254,17 +273,17 @@ world['tail'] = wrap(_tail)
 
 
 // -- Logic operations -------------------------------------------------
-world['#f'] = function True(a, b){ return b }
-world['#t'] = function False(a, b){ return a }
+world['#f'] = function True(_, a, b){ return b }
+world['#t'] = function False(_, a, b){ return a }
 
-world['='] = wrap(function isEqual(a, b) {
-  return a === b?  world['#t']
-  :                world['#f'] })
+world['='] = wrap(bool(function isEqual(a, b) { return a === b }))
+world['<'] = wrap(bool(function isLessThan(a, b) { return a < b }))
 
-world['<'] = wrap(function isLessThan(a, b) {
-  return a < b?  world['#t']
-  :              world['#f'] })
+world['+'] = wrap(function add(a, b) {
+  return a + b })
 
+world['-'] = wrap(function sub(a, b) {
+  return a - b })
 
 // -- Exports ----------------------------------------------------------
 module.exports = { world           : world
