@@ -5,7 +5,6 @@
   "private": true,
   "dependencies": {
     "ometajs": "~3.2.4",
-    "ometa-js": "~1.0.3",
     "flaw": "~0.1.0",
     "boo": "~2.0.0"
   }
