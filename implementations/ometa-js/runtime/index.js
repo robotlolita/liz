@@ -120,7 +120,7 @@ function operative(args, rest, bodyList, lexical) {
   var last = body.pop()
 
   return function() {
-           var world = clone(lexical)
+           var world = makeEnvironment(lexical)
            args.forEach(defineIn(world, arguments))
            if (rest)  world[rest] = _toList(slice(arguments, args.length))
 
@@ -269,6 +269,7 @@ world['symbol?']      = wrap(bool(isSymbol))
 world['nil']  = _nil
 world['head'] = wrap(_head)
 world['tail'] = wrap(_tail)
+world['cons'] = wrap(_cons)
 world['list*'] = wrap(function() {
                         return _toList(arguments) })
 
