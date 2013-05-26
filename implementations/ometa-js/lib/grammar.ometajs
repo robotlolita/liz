@@ -29,7 +29,7 @@ ometa LizParser {
   stringEscape = '\\' '"',
   stringChar   = stringEscape
                | ~'"' anything,
-  string       = '"' stringChar*:cs '"' -> [#list, cs.map(ToChar)],
+  string       = '"' <stringChar*>:cs '"' -> [#str, cs],
   symbol       = ':' <nameRest+>:cs -> [#sym, cs],
 
   nameSymbols = :c ?(has(c, '!@#$%&*-_=+^~?/<>')) -> c,

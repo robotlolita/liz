@@ -77,6 +77,9 @@ These are the most important and basic combiners in the language:
 ;; Evaluates an expression in the given environment
 (eval expression environment) → a
 
+;; Parses a string into a proper PoLiz data structure
+(read string) → expression
+
 ;; Constructs an environment, extending a parent environment
 (make-environment parent) → parent <| Environment a
 

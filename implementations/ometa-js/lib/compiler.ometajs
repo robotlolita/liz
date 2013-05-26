@@ -32,6 +32,11 @@ function makeString(a) {
           .replace(/"/g, '\\"') 
        + '"' }
 
+// :: String -> StringValue
+function makeStringValue(a) {
+  return '{ tag: "string", value: ' + makeString(a) + ' }' }
+
+
 ometa LizCompiler {
   args = []                   -> [[], null]
        | [[eval*:as]]         -> [as, null]
@@ -42,8 +47,9 @@ ometa LizCompiler {
              | eval:a                           -> a,
 
   eval = [#id :a]                     -> makeString(a)
+       | [#str :a]                    -> makeStringValue(a)
        | [#num :a]                    -> a
-       | [#char :a]                   -> makeString(a)
+       | [#char :a]                   -> a
        | [#sym :a]                    -> makeSymbol(a)
        | [#cons eval:a eval:b]        -> makeCons(a, b)
        | [#list [eval*:as]]           -> makeVector(as)

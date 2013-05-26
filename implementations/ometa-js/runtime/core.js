@@ -3,8 +3,10 @@
 // Core runtime for PoLiz
 
 // -- Dependencies -----------------------------------------------------
-var flaw = require('flaw')
-var boo  = require('boo')
+var flaw     = require('flaw')
+var boo      = require('boo')
+var grammar  = require('./lib/grammar').LizParser
+var compiler = require('./lib/compiler').LizCompiler
 
 
 // -- Aliases ----------------------------------------------------------
@@ -57,6 +59,17 @@ function _toArray(list) {
                            return as })}
 
 
+function _head(as) {
+  expectType(isList, 'list', as)
+  return isString(as)?    as.charCodeAt(0)
+  :      /* otherwise */  as.head }
+
+function _tail(as) {
+  expectType(isList, 'list', as)
+  return isString(as)?     as.slice(1)
+  :      /* othewrise */   as.tail }
+
+
 // -- Constructing primitives ------------------------------------------
 var Primitive = Base.derive({
   init:
@@ -77,7 +90,7 @@ var Applicative = Base.derive({
 
 , call:
   function _call(expression, environment) {
-    var args = slice(arguments, 1).map(_evaluateIn(environment))
+    var args = _toArray(expression).map(_evaluateIn(environment))
     return this.underlying.apply(null, args) }
 })
 
@@ -139,6 +152,16 @@ function isSymbol(expression) {
   return classOf(expression) === '[object String]' }
 
 
+function isString(expression) {
+  return Object(expression) === expression
+      && expression.tag === 'string' }
+
+
+function isList(expression) {
+  return isCons(expression)
+      || isString(expression) }
+
+
 function isCons(expression) {
   return Object(expression) === expression
       && 'head' in expression }
@@ -177,6 +200,7 @@ function evaluate(exp, environment) {
                                   , exp.tail
                                   , environment)
   :      isSymbol(exp)?      lookup(exp, environment)
+  :      isString(exp)?      exp.value
   :      exp?                exp
   :      /* otherwise */     _nil }
 
@@ -186,6 +210,7 @@ function evaluate(exp, environment) {
 world['eval']   = evaluate
 world['wrap']   = wrap
 world['unwrap'] = unwrap
+
 
 world['$define!'] = primitive(function $define(env, name, exp) {
   expectType(isSymbol, 'symbol', name)
@@ -203,28 +228,35 @@ world['$vau'] = primitive(function $vau(env, formals) {
   return operative(args, rest, body, makeEnvironment(env)) })
 
 
+world['read'] = wrap(function read(data) {
+  var ast = grammar.matchAll(data, 'value')
+  return compiler.match(ast, 'eval')
+
+  function toChar(a){ return String.fromCharCode(a) }})
+
 // -- Core predicates --------------------------------------------------
-world['list?']        = isCons
+world['list?']        = isList
 world['operative?']   = isFunction
 world['applicative?'] = isApplicative
-world['number?']      = function(a){ return classOf(a) === '[object Number]' }
+world['number?']      = function isNumber(a){
+                          return classOf(a) === '[object Number]' }
 world['symbol?']      = isSymbol
 
 
 // -- List primitives --------------------------------------------------
 world['nil']  = _nil
-world['head'] = function(as){ return as.head }
-world['tail'] = function(as){ return as.tail }
+world['head'] = wrap(_head)
+world['tail'] = wrap(_tail)
 
 
 // -- Logic operations -------------------------------------------------
-world['#f'] = function(a, b){ return b }
-world['#t'] = function(a, b){ return a }
+world['#f'] = function True(a, b){ return b }
+world['#t'] = function False(a, b){ return a }
 
-world['='] = function(a, b) {
+world['='] = function isEqual(a, b) {
   return a === b?  world['#t']
   :                world['#f'] }
 
-world['<'] = function(a, b) {
+world['<'] = function isLessThan(a, b) {
   return a < b?  world['#t']
   :              world['#f'] }
