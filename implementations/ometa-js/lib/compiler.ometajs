@@ -9,17 +9,20 @@ function makeCons(a, b){
 // :: [a] -> String
 function makeVector(as) {
   return as.reduceRight(function(a, b) {
-                          return makeCons(b, a) }, 'nil')}
+                          return makeCons(b, a) }, '_nil')}
 
 // :: string, [a] -> string
 function makeCall(n, as) {
-  return "(" + n + ")(" + as.join(', ') + ")" }
-
-// :: 
+  return "evaluate(" + makeVector([n].concat(as)) + ", world)" }
 
 // :: [String], [String] -> String
-function makeLambda(args, body) {
-  return "vau([" + args[0].join(', ') + "], " + args[1] + ", " + makeVector(body) + ")" }
+function makeOperative(args, body) {
+  return "(function(e){\n"
+       + "  var world = makeEnvironment(e);\n"
+       + "  return operative([" + args[0].join(', ') + "], " 
+                            + args[1] + ", " 
+                            + makeVector(body) + ", world);\n"
+       + "})(world)" }
 
 // :: String -> String
 function makeString(a) { 
@@ -44,7 +47,7 @@ ometa LizCompiler {
        | [#sym :a]                    -> makeSymbol(a)
        | [#cons eval:a eval:b]        -> makeCons(a, b)
        | [#list [eval*:as]]           -> makeVector(as)
-       | [#lambda args:as [eval*:bs]] -> makeLambda(as, bs)
+       | [#lambda args:as [eval*:bs]] -> makeOperative(as, bs)
        | [#eval strictEval:a]         -> a,
 
   cc = [strictEval*:as] -> as.join(';\n')

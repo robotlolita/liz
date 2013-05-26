@@ -1,7 +1,9 @@
 # PoLiz
 
-PoLiz is a minimal Lisp-1 (Scheme-inspired) dialect. And when I say *minimal*,
-I **really** mean it.
+PoLiz is a minimal Lisp-1 ([Kernel][]-inspired) dialect. And when I say
+*minimal*, I **really** mean it.
+
+[Kernel]: http://web.cs.wpi.edu/~jshutt/kernel.html
 
 
 ## Overview
@@ -14,20 +16,21 @@ There are four types in PoLiz:
 - Number;
 - Symbol;
 - Cons;
-- Lambda;
+- Vau;
 
 All other types are derived from these.
 
 
 ## Semantics
 
-PoLiz is a language with first-class, lexically scoped macros. This means that
-all functions are macros — they decide which arguments should be evaluated.
+PoLiz is a language with first-class macros, supporting dynamic and
+static/lexical scoping. This means that all functions are macros — they decide
+which arguments should be evaluated.
 
 The language has 2 basic types (Number, Symbol), a container type (Cons) and a
-lexical code type (Lambda). Lambdas are defined in terms of the most basic
-types, lists are defined in term of cons cells, and strings are defined as
-lists of chars, which in turn are defined as integers.
+code type (Vau). Vaus are defined in terms of the most basic types, lists are
+defined in term of cons cells, and strings are defined as lists of chars, which
+in turn are defined as integers.
 
 Numbers are double-precision floating points.
 
@@ -42,9 +45,10 @@ Lists are a series of Cons cells (`(head . tail)`), where the last item is
 automatically `nil`, which is a special List value. The syntax `(a b c)` is
 sugar for `(a . (b . (c . nil)))`.
 
-Lambdas are lexical, closured macros. Variadic macros are supported, by way of
+Vaus are first-class macros (fexprs). Variadic macros are supported, by way of
 the `| a . bs |` parameter definition syntax. Evaluation must be explicitly
-performed by way of the evaluation special form (`~`).
+performed by way of the evaluation special form (`~`). Static (Lexical) scoping
+is supported by just creating your own environment.
 
 A macro's body is a list of expressions, and the last expression is returned
 from the macro's evaluation. Which means that: `{ a b c }` would return the
@@ -59,47 +63,31 @@ means apply `b` to the macro `a`.
 
 PoLiz defines a minimal standard library:
 
-### Logic
+### Core
+
+These are the most important and basic combiners in the language:
 
 ```clj
-(<= a b)                ;; less or equal than
-(< a b)                 ;; less than
-(>= a b)                ;; greater or equal than
-(> a b)                 ;; greater than
-(= a b)                 ;; equal to
-(not a)                 ;; logical NOT
-(and . as)              ;; logical AND
-(or . as)               ;; logical OR
-```
+;; Constructs an operative (a first-class macro)
+($vau [environment . positional] . body) → Vau
 
-### Numbers
+;; Defines a name in the environment it's given
+($define! environment symbol value) → ()
 
-```clj
-(+ a b)                 ;; Addition
-(- a b)                 ;; Subtraction
-(* a b)                 ;; Multiplication
-(/ a b)                 ;; Division
-(modulo a b)            ;; Modulus
-```
+;; Evaluates an expression in the given environment
+(eval expression environment) → a
 
-### Lists
+;; Constructs an environment, extending a parent environment
+(make-environment parent) → parent <| Environment a
 
-```clj
-(head as)               ;; The first item of a cons
-(tail as)               ;; The second item of a cons
-```
+;; Creates an applicative from an operative
+(wrap vau) → Lambda
 
-### Lambda
+;; Extracts the operative from an applicative
+(unwrap lambda) → Vau
 
-```clj
-(apply f as)            ;; Applies a function to a list
-```
-
-### I/O
-
-```clj
-(print a)               ;; Prints a value to output
-(read a)                ;; Reads a as a PoLiz program
+;; Returns the current dynamic environment
+(current-world) → Environment a
 ```
 
 
