@@ -9,35 +9,17 @@ function makeCons(a, b){
 // :: [a] -> String
 function makeVector(as) {
   return as.reduceRight(function(a, b) {
-                          return makeCons(b, a) }, 'world["nil"]')}
+                          return makeCons(b, a) }, 'nil')}
 
 // :: string, [a] -> string
 function makeCall(n, as) {
-  as = ['world'].concat(as)
   return "(" + n + ")(" + as.join(', ') + ")" }
 
 // :: 
 
 // :: [String], [String] -> String
 function makeLambda(args, body) {
-  var last = body.pop()
-  var init = body.join(';\n')
-
-  var restArg = args.pop()
-  var posArgs = args[0]
-
-  var posBindings = posArgs.map(function(n, i){
-                                  return "world[" + n + "] = arguments[" + i + "]" })
-  var restBindings = restArg? "world[" + restArg + "] = [].slice.call(arguments, " + posArgs.length + ")" : ''
-  
-  if (last) last  = "return " + last
-  if (init) init += ";"
-
-  return "(function(world) {\n"
-       +    posBindings.join(';\n')     + ';\n'
-       +    restBindings                + ';\n'
-       +    init + last                 + ";\n"
-       + "})" }
+  return "vau([" + args[0].join(', ') + "], " + args[1] + ", " + makeVector(body) + ")" }
 
 // :: String -> String
 function makeString(a) { 
@@ -53,7 +35,7 @@ ometa LizCompiler {
        | [[eval*:as] eval?:b] -> [as, b],
   
   strictEval = [#list [strictEval:hd eval*:tl]] -> makeCall(hd, tl)
-             | [#id :a]                         -> { "world['" + a + "']" }
+             | [#id :a]                         -> { "lookup('" + a + "', world)" }
              | eval:a                           -> a,
 
   eval = [#id :a]                     -> makeString(a)

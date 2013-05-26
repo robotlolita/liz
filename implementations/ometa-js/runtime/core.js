@@ -2,53 +2,100 @@
 //
 // Core runtime for PoLiz
 
-var world =
-(function() {
-  var clone = Object.create
+var clone = Object.create
 
-  function extend(a, b) {
-    Object.keys(b).forEach(function(k) {
-                             a[k] = b[k]
-                           })
-    return a }
+function extend(a, b) {
+  Object.keys(b).forEach(function(k) {
+                           a[k] = b[k]
+                         })
+  return a }
 
-  // :: A, B -> (A, B)
-  function cons(_, a, b) {
-    return { head: a
-           , tail: b }}
+function cons(a, b) {
+  return { head: a, tail: b }}
 
-  // :: environment -> environment
-  function makeEnvironment(_, parent) {
-    if (!parent || parent == nil)  parent = null
-    return clone(parent) }
+function list() {
+  return [].reduceRight.call(arguments, function(a, b) {
+                                          return cons(b, a)
+                                        }, nil)}
 
-  // :: string, environment A -> A
-  function evaluate(_, name, environment) {
-    return environment[name] }
+function head(as) {
+  return as.head }
 
-  // :: environment A, string, A -> ()
-  function define(environment, name, value) {
-    environment[name] = value
-    return nil }
+function tail(as) {
+  return as.tail }
 
-  // :: (A, B) -> A
-  function head(_, as) {
-    return as.head }
+var nil = cons(null, null)
 
-  // :: (A, B) -> B
-  function tail(_, as) {
-    return as.tail }
+var classOf = Function.call.bind({}.toString)
+var slice   = Function.call.bind([].slice)
 
-  // :: ()
-  var nil = cons(null, null)
+// :: [A], B, (A -> B) -> B
+function fold(list, initial, f) {
+  if (list === nil)  return initial
 
-  // :: environment A
-  return extend(clone(null), { nil                : nil
-                             , cons               : cons
-                             , head               : head
-                             , tail               : tail
-                             , define             : define
-                             , evaluate           : evaluate
-                             , 'make-environment' : makeEnvironment
-                             })
-})()
+  var result = initial
+  while (list !== nil) {
+    result = f(result, head(list))
+    list   = tail(list) }
+
+  return result }
+
+// :: [A] -> array A
+function toArray(list) {
+  return fold(list, [], function(as, a) {
+                          as.push(a)
+                          return as })}
+
+// :: string, environment A -> maybe A
+function lookup(symbol, environment) {
+  return symbol in environment?  environment[symbol]
+  :      /* otherwise */         nil }
+
+// :: A, environment B -> A
+function evaluate(exp, environment) {
+  return isCons(exp)?     apply( evaluate(head(exp), environment)
+                               , tail(exp))
+  :      isSymbol(exp)?   lookup(exp, environment)
+  :      /* otherwise */  nil
+}
+
+// :: A -> bool
+function isCons(as) {
+  return Object(as) === as
+      && 'head' in as
+      && as != nil }
+
+// :: A -> bool
+function isSymbol(as) {
+  return classOf(as) == '[object String]' }
+
+function apply(operator, operands) {
+  return operator.apply(null, toArray(operands)) }
+
+// :: string, A, environment A -> ()
+function set(symbol, value, environment) {
+  (environment || world)[symbol] = value
+  return nil }
+
+// :: [symbol . symbol], [expression] -> Vau
+function vau(args, rest, bodyList) {
+  var body  = toArray(bodyList)
+  var last  = body.pop()
+
+  return function(env) {
+           var world = env = clone(env)
+           var ps    = arguments
+           args.forEach(function(n, i){ world[n] = ps[i] })
+           world[rest] = list.apply(null, slice(arguments, args.length))
+           body.forEach(function(as){ evaluate(as, world) })
+           return evaluate(last, world) }
+}
+
+var world = extend(clone(null), { '$vau'             : vau
+                                , '$define!'         : set
+                                , 'eval'             : evaluate
+                                , 'make-environment' : clone
+                                , 'list'             : list
+                                , 'nil'              : nil
+                                })
+world['world'] = world
