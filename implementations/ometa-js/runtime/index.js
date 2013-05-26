@@ -243,8 +243,7 @@ world['$define!'] = primitive(function $define(env, name, exp) {
   return value })
 
 
-world['$vau'] = primitive(function $vau(env, formals) {
-  var body = _toList(slice(arguments, 2))
+world['$vau'] = primitive(function $vau(env, formals, body) {
   var args = _toArray(formals.head)
   var rest = formals.tail == _nil?  null : formals.tail
 
@@ -270,6 +269,8 @@ world['symbol?']      = wrap(bool(isSymbol))
 world['nil']  = _nil
 world['head'] = wrap(_head)
 world['tail'] = wrap(_tail)
+world['list*'] = wrap(function() {
+                        return _toList(arguments) })
 
 
 // -- Logic operations -------------------------------------------------
