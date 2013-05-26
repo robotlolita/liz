@@ -40,8 +40,8 @@ function _cons(a, b) {
   return { head: a, tail: b }}
 
 
-function _toList(as) {
-  return foldr(as, function(a, b) { return _cons(b, a) }, _nil)}
+function _toList(as, a) {
+  return foldr(as, function(a, b) { return _cons(b, a) }, a || _nil)}
 
 
 function _evaluateIn(environment){ return function(expression) {
@@ -53,14 +53,14 @@ function _fold(list, initial, f) {
 
   var result = initial
   while (list !== _nil) {
-    result = f(result, list.head)
+    result = f(list.head, result)
     list   = list.tail }
 
   return result }
 
 
 function _toArray(list) {
-  return _fold(list, [], function(as, a) {
+  return _fold(list, [], function(a, as) {
                            as.push(a)
                            return as })}
 
@@ -228,9 +228,9 @@ world['wrap']   = wrap(function(f) { return wrap(f) })
 world['unwrap'] = wrap(function(f) { return unwrap(f) })
 
 world['inspect'] = wrap(function(v) {
-  if (typeof v == 'function')     console.log(v.toString())
-  else if (typeof v == 'object')  console.log(inspect(v))
-  else                            console.log(JSON.stringify(v))
+  if (typeof v == 'function')     console.log('>>>', v.toString())
+  else if (Object(v) === v)       console.log('>>>', inspect(v))
+  else                            console.log('>>>', JSON.stringify(v))
 
   return v
 })
@@ -266,17 +266,21 @@ world['symbol?']      = wrap(bool(isSymbol))
 
 
 // -- List primitives --------------------------------------------------
-world['nil']  = _nil
-world['head'] = wrap(_head)
-world['tail'] = wrap(_tail)
-world['cons'] = wrap(_cons)
+world['nil']   = _nil
+world['head']  = wrap(_head)
+world['tail']  = wrap(_tail)
+world['cons']  = wrap(_cons)
 world['list*'] = wrap(function() {
-                        return _toList(arguments) })
+                        var initial = slice(arguments, 0, -1)
+                        var rest    = slice(arguments, -1)[0]
+                        if (Array.isArray(rest))  rest = _toList(rest)
+                        return initial.length? _toList(initial, rest)
+                        :                      _toList(arguments) })
 
 
 // -- Logic operations -------------------------------------------------
-world['#f'] = function True(_, a, b){ return b }
-world['#t'] = function False(_, a, b){ return a }
+world['#f'] = function True(e, a, b){ return evaluate(b, e) }
+world['#t'] = function False(e, a, b){ return evaluate(a, e) }
 
 world['='] = wrap(bool(function isEqual(a, b) { return a === b }))
 world['<'] = wrap(bool(function isLessThan(a, b) { return a < b }))
