@@ -42,7 +42,7 @@ ometa LizParser {
   list = '(' ws* ')' -> [#list, []]
        | '(' ws* body:a ws* ')' -> [#list, a],
 
-  lambda   = '{' ws* args?:a ws* body?:b ws* '}' -> [#lambda, a, b],
+  lambda   = '{' ws* args?:a ws* body?:b ws* '}' -> [#lambda, (a||[]), (b||[])],
   args     = '|' ws* nameList:a (ws+ '.' ws* name)?:b ws* '|' -> (b?[a,b]:[a]),
   nameList = name:a (ws+ name)*:b -> [a].concat(b),
 

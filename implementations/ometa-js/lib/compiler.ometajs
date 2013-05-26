@@ -1,65 +1,43 @@
-// :: {String -> String}
-var SymbolTable = {
-  '!': 'BANG'
-, '@': 'AT'
-, '#': 'POUND'
-, '$': 'DOLLAR'
-, '%': 'PERCENT'
-, '&': 'AND'
-, '*': 'STAR'
-, '-': 'MINUS'
-, '=': 'EQUAL'
-, '+': 'PLUS'
-, '^': 'CIRCUMFLEX'
-, '~': 'TILDE'
-, '?': 'QUESTION'
-, '/': 'SLASH'
-, '<': 'LT'
-, '>': 'GT'
-}
-
-// :: String -> String
-function sanitise(a) {
-  return a.replace(/([^\w_])/g, function(x) {
-    return '$' + (SymbolTable[x] || x.charCodeAt(0)) })}
-
 // :: String -> String
 function makeSymbol(a) {
   return makeString(a.toLowerCase()) }
 
 // :: a, b -> Cons a b
 function makeCons(a, b){
-  return 'new $cons(' + a + ', ' + b + ')' }
+  return '{ head: ' + a + ', tail: ' + b + ' }' }
 
 // :: [a] -> String
 function makeVector(as) {
   return as.reduceRight(function(a, b) {
-                          return makeCons(b, a) }, 'nil')}
+                          return makeCons(b, a) }, 'world["nil"]')}
 
 // :: string, [a] -> string
 function makeCall(n, as) {
-  return '(' + n + ')(' + as.join(', ') + ')' }
+  as = ['world'].concat(as)
+  return "(" + n + ")(" + as.join(', ') + ")" }
+
+// :: 
 
 // :: [String], [String] -> String
-function makeLambda(as, b) {
-  var last = b.pop()
-  var init = b.join(';\n')
-  var rest = as.pop()
-  var restBinding = ''
+function makeLambda(args, body) {
+  var last = body.pop()
+  var init = body.join(';\n')
 
-  if (rest) restBinding = 'var ' + rest + ' = [].slice.call(arguments, ' + as.length + ')'
-  if (last) last        = 'return ' + last
-  if (init) init       += ';'
+  var restArg = args.pop()
+  var posArgs = args[0]
 
-  return '(function(' + as.join(', ') + '){\n'
-       +     restBinding + init + last + '\n})' }
-
-// :: [String], [String] -> String
-function makeFunction(as, b) {
-  var args = makeCons(makeVector(as[0]), as[1])
+  var posBindings = posArgs.map(function(n, i){
+                                  return "world[" + n + "] = arguments[" + i + "]" })
+  var restBindings = restArg? "world[" + restArg + "] = [].slice.call(arguments, " + posArgs.length + ")" : ''
   
-  return makeCons('"fn"', makeCons(args, b))
-}
+  if (last) last  = "return " + last
+  if (init) init += ";"
+
+  return "(function(world) {\n"
+       +    posBindings.join(';\n')     + ';\n'
+       +    restBindings                + ';\n'
+       +    init + last                 + ";\n"
+       + "})" }
 
 // :: String -> String
 function makeString(a) { 
@@ -70,26 +48,22 @@ function makeString(a) {
        + '"' }
 
 ometa LizCompiler {
-  args = [[strictEval*:as]]               -> [as, null]
-       | [[strictEval*:as] strictEval?:b] -> [as, b],
-
-  quotedArgs = [[eval*:as]]         -> [as, null]
-             | [[eval*:as] eval?:b] -> [as, b],
+  args = []                   -> [[], null]
+       | [[eval*:as]]         -> [as, null]
+       | [[eval*:as] eval?:b] -> [as, b],
   
-  strictEval = [#id :a]                         -> sanitise(a)
-             | [#list [strictEval:hd eval*:tl]] -> makeCall(hd, tl)
-             | [#lambda args:as [eval*:bs]]     -> makeLambda(as, bs)
+  strictEval = [#list [strictEval:hd eval*:tl]] -> makeCall(hd, tl)
+             | [#id :a]                         -> { "world['" + a + "']" }
              | eval:a                           -> a,
 
-  eval = [#id :a]                           -> makeString(sanitise(a))
-       | [#num :a]                          -> a
-       | [#char :a]                         -> makeString(a)
-       | [#sym :a]                          -> makeSymbol(a)
-       | [#cons eval:a eval:b]              -> makeCons(a, b)
-       | [#list [eval*:as]]                 -> makeVector(as)
-       | [#lambda quotedArgs:as [eval*:bs]] -> makeFunction(as, bs)
-       | [#eval strictEval:a]               -> a,
+  eval = [#id :a]                     -> makeString(a)
+       | [#num :a]                    -> a
+       | [#char :a]                   -> makeString(a)
+       | [#sym :a]                    -> makeSymbol(a)
+       | [#cons eval:a eval:b]        -> makeCons(a, b)
+       | [#list [eval*:as]]           -> makeVector(as)
+       | [#lambda args:as [eval*:bs]] -> makeLambda(as, bs)
+       | [#eval strictEval:a]         -> a,
 
-
-  cc = [eval*:as] -> as.join(';\n')
+  cc = [strictEval*:as] -> as.join(';\n')
 }

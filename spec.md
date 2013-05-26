@@ -132,7 +132,7 @@ cons :: "(" expr "." expr ")"
 list :: "(" expr* ")"
 
 lambda :: "{" args? expr* "}"
-args   :: "|" name* ("." name)? "|"
+args   :: name "|" name* ("." name)? "|"
 
 eval    :: "~" value
 
