@@ -238,6 +238,7 @@ world['read'] = wrap(function read(data) {
 
   function toChar(a){ return String.fromCharCode(a) }})
 
+
 // -- Core predicates --------------------------------------------------
 world['list?']        = wrap(isList)
 world['operative?']   = wrap(isFunction)
