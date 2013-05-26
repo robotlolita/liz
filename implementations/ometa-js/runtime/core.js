@@ -96,10 +96,12 @@ function makeEnvironment(parent) {
                   , { 'current-world': function(){ return env } })
   return env }
 
-var world = makeEnvironment(clone(null), { '$vau'             : vau
-                                         , '$define!'         : set
-                                         , 'eval'             : evaluate
-                                         , 'make-environment' : makeEnvironment
-                                         , 'list'             : list
-                                         , 'nil'              : nil
-                                         })
+var world = makeEnvironment(clone(null))
+
+extend(world, { '$vau'             : vau
+              , '$define!'         : set
+              , 'eval'             : evaluate
+              , 'make-environment' : makeEnvironment
+              , 'list'             : list
+              , 'nil'              : nil
+              })
