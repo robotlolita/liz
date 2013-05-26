@@ -217,8 +217,7 @@ function evaluate(exp, environment) {
                                   , environment)
   :      isSymbol(exp)?      lookup(exp, environment)
   :      isString(exp)?      exp.value
-  :      exp?                exp
-  :      /* otherwise */     _nil }
+  :      /* otherwise */     exp }
 
 
 
@@ -279,8 +278,8 @@ world['list*'] = wrap(function() {
 
 
 // -- Logic operations -------------------------------------------------
-world['#f'] = function True(e, a, b){ return evaluate(b, e) }
-world['#t'] = function False(e, a, b){ return evaluate(a, e) }
+world['#f'] = function False(e, a, b){ return evaluate(b, e) }
+world['#t'] = function True(e, a, b){ return evaluate(a, e) }
 
 world['='] = wrap(bool(function isEqual(a, b) { return a === b }))
 world['<'] = wrap(bool(function isLessThan(a, b) { return a < b }))
