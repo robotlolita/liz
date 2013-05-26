@@ -186,6 +186,10 @@ function isApplicative(expression) {
       && Applicative.isPrototypeOf(expression) }
 
 
+function isNumber(expression) {
+  return classOf(expression) === '[object Number]' }
+
+
 // -- Evaluation primitives --------------------------------------------
 function apply(operator, operands, env) {
   return isFunction(operator)?  operator.apply(null, [env].concat(_toArray(operands)))
@@ -235,12 +239,11 @@ world['read'] = wrap(function read(data) {
   function toChar(a){ return String.fromCharCode(a) }})
 
 // -- Core predicates --------------------------------------------------
-world['list?']        = isList
-world['operative?']   = isFunction
-world['applicative?'] = isApplicative
-world['number?']      = function isNumber(a){
-                          return classOf(a) === '[object Number]' }
-world['symbol?']      = isSymbol
+world['list?']        = wrap(isList)
+world['operative?']   = wrap(isFunction)
+world['applicative?'] = wrap(isApplicative)
+world['number?']      = wrap(isNumber)
+world['symbol?']      = wrap(isSymbol)
 
 
 // -- List primitives --------------------------------------------------
@@ -253,10 +256,10 @@ world['tail'] = wrap(_tail)
 world['#f'] = function True(a, b){ return b }
 world['#t'] = function False(a, b){ return a }
 
-world['='] = function isEqual(a, b) {
+world['='] = wrap(function isEqual(a, b) {
   return a === b?  world['#t']
-  :                world['#f'] }
+  :                world['#f'] })
 
-world['<'] = function isLessThan(a, b) {
+world['<'] = wrap(function isLessThan(a, b) {
   return a < b?  world['#t']
-  :              world['#f'] }
+  :              world['#f'] })
