@@ -1,0 +1,97 @@
+#!/usr/bin/env node
+var doc = "poliz --- A minimal Lisp/Kernel dialect.\n"
+        + "\n"
+        + "Usage:\n"
+        + "  poliz [options] <files>...\n"
+        + "  poliz -h, --help\n"
+        + "  poliz --version\n"
+        + "\n"
+        + "Options:\n"
+        + "  -s, --stdin        Reads from STDIN.\n"
+        + "  -t, --ast          Returns the AST (as JSON).\n"
+        + "  -e, --eval         Evaluates the scripts.\n"
+        + "  -p, --print        Prints results to STDOUT.\n"
+        + "  -c, --compile      Compiles the file.\n"
+        + "  -h, --help         Displays usage help and exits.\n"
+        + "  --version          Displays version info and exits.\n"
+
+// -- Dependencies -----------------------------------------------------
+var path       = require('path')
+var optimist   = require('optimist')
+var ffs        = require('ffs')
+var slurp      = require('noisyo').slurp
+var pinky      = require('pinky')
+var lift       = require('pinky-for-fun').lift
+var all        = require('pinky-combinators').all
+var athena     = require('athena')
+var meta       = require('../package.json')
+var poliz      = require('../lib')
+
+var compose = athena.compose
+var curry   = athena.curry
+
+
+// -- Helpers ----------------------------------------------------------
+var slice = Function.call.bind([].slice)
+
+function raise(err) {
+  process.nextTick(function(){ throw err }) }
+
+function read(pathname) {
+  return ffs.read({ encoding: 'utf-8' }, pathname) }
+
+function readStdin() {
+  return slurp(process.stdin) }
+
+function pipe() {
+  return compose.apply(null, slice(arguments).reverse()) }
+
+
+// -- Promised helpers -------------------------------------------------
+var display = lift(function display(data) {
+                     console.log(data) })
+
+var cat = lift(function cat(as) {
+                 return as.join('\n\n') })
+
+var parse = lift(poliz.parse)
+
+var compile = lift(poliz.compile)
+
+var toJson = lift(JSON.stringify)
+
+var map = curry(2, lift(function(f, xs){ return xs.map(f) }))
+
+var run = lift(function(data) { return eval(data) })
+
+
+// -- Main -------------------------------------------------------------
+void function() {
+       var argv = optimist.alias('h', 'help')   .boolean('h')
+                          .alias('s', 'stdin')  .boolean('s')
+                          .alias('t', 'ast')    .boolean('t')
+                          .alias('e', 'eval')   .boolean('e')
+                          .alias('p', 'print')  .boolean('p')
+                          .alias('c', 'compile').boolean('c')
+                          .boolean('version')
+                          .argv
+
+       var help    = argv.help
+       var version = argv.version
+       var files   = argv.stdin?  [readStdin()] : argv._.map(read)
+
+       var unify    = pipe(all, cat)
+       var toAst    = pipe(unify, parse, toJson)
+       var compiled = pipe(unify, compile)
+       var evaluate = pipe(compiled, run)
+
+       var res = version?         display(meta.version)
+       :       help?              display(doc)
+       :       argv.ast?          toAst(files)
+       :       argv.eval?         evaluate(files)
+       :       argv.compile?      compiled(files)
+       :       /* otherwise */    display(doc)
+
+       if (res && argv.print)  display(res)
+       res.otherwise(raise)
+}()
