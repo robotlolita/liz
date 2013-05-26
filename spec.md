@@ -112,9 +112,6 @@ These allows inspection of the basic types, other predicates can be easily
 derived from these:
 
 ```clj
-;; Checks if a value is nil
-(null? a) → bool
-
 ;; Checks if a value is a list
 (list? a) → bool
 
