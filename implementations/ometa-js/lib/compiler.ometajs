@@ -9,7 +9,7 @@ function makeCons(a, b){
 // :: [a] -> String
 function makeVector(as) {
   return as.reduceRight(function(a, b) {
-                          return makeCons(b, a) }, '_nil')}
+                          return makeCons(b, a) }, 'nil')}
 
 // :: string, [a] -> string
 function makeCall(n, as) {

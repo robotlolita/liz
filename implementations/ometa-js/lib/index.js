@@ -6,8 +6,15 @@ var Parser   = require('./grammar').LizParser
 var Compiler = require('./compiler').LizCompiler
 
 function withPrelude(data) {
-  return read(resolve(__dirname, '..', 'runtime', 'core.js'))
-       + ';\n' + data }
+  var runtime = resolve(__dirname, '..', 'runtime')
+  return 'var __runtime       = require(' + JSON.stringify(runtime) + ');\n'
+       + 'var world           = __runtime.world;\n'
+       + 'var evaluate        = __runtime.evaluate;\n'
+       + 'var makeEnvironment = __runtime.makeEnvironment;\n'
+       + 'var operative       = __runtime.operative;\n'
+       + 'var lookup          = __runtime.lookup;\n'
+       + 'var nil             = __runtime.nil;\n'
+       + data }
 
 function parse(data) {
   return Parser.matchAll(data, 'program') }

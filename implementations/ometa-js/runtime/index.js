@@ -5,8 +5,8 @@
 // -- Dependencies -----------------------------------------------------
 var flaw     = require('flaw')
 var boo      = require('boo')
-var grammar  = require('./lib/grammar').LizParser
-var compiler = require('./lib/compiler').LizCompiler
+var grammar  = require('../lib/grammar').LizParser
+var compiler = require('../lib/compiler').LizCompiler
 
 
 // -- Aliases ----------------------------------------------------------
@@ -264,3 +264,13 @@ world['='] = wrap(function isEqual(a, b) {
 world['<'] = wrap(function isLessThan(a, b) {
   return a < b?  world['#t']
   :              world['#f'] })
+
+
+// -- Exports ----------------------------------------------------------
+module.exports = { world           : world
+                 , evaluate        : evaluate
+                 , makeEnvironment : makeEnvironment
+                 , operative       : operative
+                 , lookup          : lookup
+                 , nil             : _nil
+                 }
