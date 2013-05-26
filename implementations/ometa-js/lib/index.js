@@ -6,7 +6,7 @@ var Parser   = require('./grammar').LizParser
 var Compiler = require('./compiler').LizCompiler
 
 function withPrelude(data) {
-  return 'var world = ' + read(resolve(__dirname, '..', 'runtime', 'core.js'))
+  return read(resolve(__dirname, '..', 'runtime', 'core.js'))
        + ';\n' + data }
 
 function parse(data) {
@@ -20,3 +20,9 @@ function read(name) {
 
 function compile(data) {
   return withPrelude(compileAst(parse(data))) }
+
+
+module.exports = { parse      : parse
+                 , compileAst : compileAst
+                 , read       : read
+                 , compile    : compile }

@@ -1,6 +1,8 @@
 // # Module core
 //
 // Core runtime for PoLiz
+
+var world =
 (function() {
   var clone = Object.create
 
@@ -41,14 +43,12 @@
   var nil = cons(null, null)
 
   // :: environment A
-  var world = extend(clone(null), { nil                : nil
-                                  , cons               : cons
-                                  , head               : head
-                                  , tail               : tail
-                                  , define             : define
-                                  , evaluate           : evaluate
-                                  , 'make-environment' : makeEnvironment
-                                  })
-
-  return world
+  return extend(clone(null), { nil                : nil
+                             , cons               : cons
+                             , head               : head
+                             , tail               : tail
+                             , define             : define
+                             , evaluate           : evaluate
+                             , 'make-environment' : makeEnvironment
+                             })
 })()
