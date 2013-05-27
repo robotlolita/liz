@@ -1,0 +1,233 @@
+;;; core.liz --- The base module for high-level programming in PoLiz
+
+;; -- Aliases ----------------------------------------------------------
+($define! def $define!)
+(def set! def)
+(def otherwise #t)
+(def true #t)
+(def false #f)
+
+
+;; -- Basic forms ------------------------------------------------------
+(def defn { | lexical-env symbol formals . body |
+           "Binds a lexical function to a name in the environment."
+           (def f (eval (list* ^lambda formals body) lexical-env))
+           (eval (list* def symbol (list* f)) lexical-env) })
+
+
+(def ^lambda { | lexical-env formals . body |
+             "Constructs a new lexically-scoped applicative."
+             (wrap (eval (list* $vau formals (list* body))
+                         lexical-env)) })
+
+
+(def ^quote { | _ . body |
+             "Returns the arguments without evaluating."
+             body })
+
+
+(def ^do { | env . body |
+          "Evaluates the expressions in order, returns the value of the
+          last expression."
+          ((wrap (eval (list* $vau (cons nil nil) (list* body))
+                       env))) })
+
+
+(def ^if { | env test consequent alternate |
+          "Evaluates `test`. If true, returns the result of evaluating
+          `consequent`, otherwise returns the result of evaluating
+          `alternate`.
+
+           Note that `test` *must* evaluate to a fexpr behaving
+           similarly to a Boolean, since they're church encoded."
+          ((eval test env) (eval consequent env)
+                           (eval alternate env)) })
+
+
+(def ^when { | env test . body |
+            "Evaluates `test`, if true, evaluates `body`."
+            (inspect body)
+            (^if test (eval (list* ^do body) env)
+                 nil) })
+
+
+(def ^unless { | env test . body |
+              "Evaluates `test`, if false, evaluates `body`."
+              (^if test nil
+                   (eval (list* ^do body) env)) })
+
+
+(def ^cond { | env . forms |
+            "Accepts many positional forms, where each odd form is a
+            test, and each even form is a result. Returns the first
+            result for which the preceding test holds."
+            (def test  (head forms))
+            (def value (head (tail forms)))
+            (def rest  (tail (tail forms)))
+
+            (^if (= forms nil)  nil
+                 (^if (eval test env)  (eval value env)
+                      (eval (list* cond rest) env))) })
+
+
+(def ^let { | env bindings . body |
+           "Accepts a series of (name expr) for the bindings, and
+           evaluates `body` with those names bound the the result of
+           evaluating `expr` in the current lexical environment."
+           (eval (cons (list* ^lambda (list* (map head bindings) nil) body)
+                       (map second bindings))
+                 env) })
+
+
+;; -- Logic operations -------------------------------------------------
+(def ^or { | env . forms |
+          "True if any item is evaluates to true."
+          (^if (= nil forms) false
+               (^do (def value (eval (head forms) env))
+                    (^if value true
+                         (eval (list* ^or (tail forms)) env)))) })
+
+
+(def ^and { | env . forms |
+           "True if all items evaluate to true."
+           (^if (= nil forms) true
+                (^do (def value (eval (head forms) env))
+                     (^if (not value)  false
+                          (eval (list* ^and (tail forms)) env)))) })
+
+
+(defn not ((a))
+  "Negates a boolean value."
+  (a false true))
+
+
+;; -- List operations --------------------------------------------------
+(defn foldr ((f x xs))
+  "Folds a list associating to the right."
+  (^if (= nil xs)  x
+       (f (head xs) (foldr f x (tail xs)))))
+
+
+(defn foldl ((f x xs))
+  "Folds a list associating to the left."
+  (^if (= nil xs) x
+       (f (foldl f x (tail xs)) (head xs))))
+
+              
+(defn map ((f xs))
+  "Returns a new list, with each element transformed by `f`."
+  (foldl (^lambda ((xs x)) (cons (f x) xs)) nil xs))
+
+
+(defn concat ((xs ys))
+  "Concatenates two lists."
+  (foldr cons ys xs))
+
+
+(defn filter ((f xs))
+  "Keeps only items that pass the predicate."
+  (foldl (^lambda ((xs x))
+                  (^if (f x) (cons x xs)
+                       xs))
+         nil xs))
+
+
+(defn second ((xs))
+  "Returns the second item of a list."
+  (head (tail xs)))
+
+
+(defn third ((xs))
+  "Returns the third item of a list."
+  (head (tail (tail xs))))
+
+
+(defn last ((xs))
+  "Returns the last item of a list."
+  (^if (= nil (tail xs))  (head xs)
+       (last (tail xs))))
+
+
+(defn but-last ((xs))
+  "Returns all items but the last one."
+  (^if (= nil (tail xs))  nil
+       (cons (head xs) (but-last (tail xs)))))
+
+
+(defn length ((xs))
+  "Returns the length of the list."
+  (foldl (^lambda ((x _)) (+ 1 x)) 0 xs))
+
+
+(defn nth ((n xs))
+  "Returns the element at the N'th index."
+  (^if (= n 0)  (head xs)
+       (nth (- n 1) (tail xs))))
+
+
+(defn reverse ((xs))
+  "Reverses a list."
+  (foldl (^lambda ((xs x)) (concat xs (cons x nil))) nil xs))
+
+
+(defn any ((f xs))
+  "True if any item passes the predicate."
+  (^if (f (head xs))  true
+       (any f (tail xs))))
+
+
+(defn all ((f xs))
+  "True if all items pass the predicate."
+  (^if (not (f (head xs)))  false
+       (all f (tail xs))))
+
+
+(defn sum ((xs))
+  "Returns the sum of all elements in xs."
+  (foldl + 0 xs))
+
+
+(defn product ((xs))
+  "Returns the product of all elements in xs."
+  (foldl * 1 xs))
+
+
+(defn map-concat ((f xs))
+  "Maps and flattens the elements in xs."
+  (foldl (^lambda ((xs x)) (concat (f x) xs)) nil xs))
+
+
+(defn take ((n xs))
+  "Takes N items from xs."
+  (^if (= n 0) nil
+       (cons (head xs) (take (- n 1) (tail xs)))))
+
+
+(defn drop ((n xs))
+  "Drops N items from xs."
+  (^if (= n 0) xs
+       (drop (- n 1) (tail xs))))
+
+
+(defn take-while ((f xs))
+  "Takes items from xs while the predicate holds."
+  (^if (not (f (head xs)))  nil
+       (cons (head xs) (take-while f (tail xs)))))
+
+
+(defn drop-while ((f xs))
+  "Drops items from xs while the predicate holds."
+  (^if (not (f (head xs))) xs
+       (drop-while f (tail xs))))
+
+
+(defn contains? ((x xs))
+  "True if xs contain x."
+  (any (^lambda ((y)) (= x y)) xs))
+
+
+(defn zip ((xs ys))
+  "Zips two lists together."
+  (^if (^or (= nil xs) (= nil ys))  nil
+       (cons (cons (head xs) (head ys))
+             (zip (tail xs) (tail ys)))))
