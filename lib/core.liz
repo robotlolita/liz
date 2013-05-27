@@ -119,6 +119,42 @@
   (^or (> a b)
        (= a b)))
 
+
+;; -- Arithmetic -------------------------------------------------------
+(defn * ((a b))
+  "Multiplies a by b."
+  (^cond (= b 0) 1
+         (= b 1) a
+         #t      (* (+ a a) (- b 1))))
+
+(defn / ((a b))
+  "Divides a by b."
+  ;; TODO
+  )
+
+(defn quotient ((a b))
+  "Quotient of dividing a by b."
+  ;; TODO
+  )
+
+(defn remainder ((a b))
+  "Remainder of dividing a by b."
+  ;; TODO
+  )
+
+(defn modulus ((a b))
+  "Modules of dividing a by b."
+  ;; TODO
+  )
+
+(defn succ ((a))
+  "The successor of A."
+  (+ a 1))
+
+(defn pred ((a))
+  "The predecessor of A."
+  (- a 1))
+
 (defn max ((a b))
   "Returns the greater value between a and b."
   (^if (< a b) b
