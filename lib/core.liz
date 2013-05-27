@@ -46,7 +46,6 @@
 
 (def ^when { | env test . body |
             "Evaluates `test`, if true, evaluates `body`."
-            (inspect body)
             (^if test (eval (list* ^do body) env)
                  nil) })
 
