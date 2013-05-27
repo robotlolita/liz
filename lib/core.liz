@@ -166,6 +166,32 @@
        b))
 
 
+;; -- Predicates -------------------------------------------------------
+(defn nil? ((a))
+  "True if a is nil."
+  (= a nil))
+
+(defn zero? ((a))
+  "True if a is 0."
+  (= 0 a))
+
+(defn positive? ((a))
+  "True if a is > 0."
+  (> 0 a))
+
+(defn negative? ((a))
+  "True if a is < 0."
+  (< 0 a))
+
+(defn even? ((a))
+  "True if a is even."
+  (= 0 (rem a 2)))
+
+(defn odd? ((a))
+  "True if a is odd."
+  (not (even a)))
+
+
 ;; -- List operations --------------------------------------------------
 (defn foldr ((f x xs))
   "Folds a list associating to the right."
