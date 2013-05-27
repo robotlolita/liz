@@ -197,6 +197,37 @@
   (not (even a)))
 
 
+;; -- Lambda calculus --------------------------------------------------
+(defn identity ((a))
+  "Identity combinator."
+  a)
+
+(defn constant ((a))
+  "Constant combinator."
+  (^lambda ((b)) a))
+
+
+;; -- Functional tidbits -----------------------------------------------
+(defn apply ((applicative) . arguments)
+  "Applies a function to a list."
+  (eval (cons applicative arguments)
+        (make-environment (current-world))))
+  
+
+(def ^compose { | env f g |
+               "Function composition."
+               (^lambda (() . arguments)
+                        (^let ((x (eval (list* apply g arguments) env)))
+                          (eval (list* f x nil) env))) })
+
+
+(def ^partial { | env f . initial |
+               "Partial function application."
+               (^lambda (() . rest)
+                        (eval (list* apply f (concat initial rest)) 
+                              env)) })
+
+
 ;; -- List operations --------------------------------------------------
 (defn foldr ((f x xs))
   "Folds a list associating to the right."
