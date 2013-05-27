@@ -100,6 +100,36 @@
   (a false true))
 
 
+;; -- Equality and ordering --------------------------------------------
+(defn not= ((a b))
+  "Checks if a and b are not equal."
+  (not (= a b)))
+
+(defn <= ((a b))
+  "Tests if `a` is less or equal to `b`."
+  (^or (< a b)
+       (= a b)))
+
+(defn > ((a b))
+  "Tests if `a` is greater than `b`."
+  (not (< a b)))
+
+(defn >= ((a b))
+  "Tests if `a` is greater or equal to `b`."
+  (^or (> a b)
+       (= a b)))
+
+(defn max ((a b))
+  "Returns the greater value between a and b."
+  (^if (< a b) b
+       a))
+
+(defn min ((a b))
+  "Returns the minor value between a and b."
+  (^if (< a b) a
+       b))
+
+
 ;; -- List operations --------------------------------------------------
 (defn foldr ((f x xs))
   "Folds a list associating to the right."
