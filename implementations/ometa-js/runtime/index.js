@@ -222,9 +222,10 @@ function evaluate(exp, environment) {
 
 
 // -- Core primitives --------------------------------------------------
-world['eval']   = wrap(evaluate)
-world['wrap']   = wrap(function(f) { return wrap(f) })
-world['unwrap'] = wrap(function(f) { return unwrap(f) })
+world['eval']             = wrap(evaluate)
+world['wrap']             = wrap(function(f) { return wrap(f) })
+world['unwrap']           = wrap(function(f) { return unwrap(f) })
+world['make-environment'] = wrap(makeEnvironment)
 
 world['inspect'] = wrap(function(v) {
   if (typeof v == 'function')     console.log('>>>', v.toString())
