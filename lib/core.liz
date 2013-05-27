@@ -171,6 +171,11 @@
   "True if a is nil."
   (= a nil))
 
+(defn combiner? ((a))
+  "True if a is either an Applicative or Operative."
+  (^or (operative? a)
+       (applicative a)))
+
 (defn zero? ((a))
   "True if a is 0."
   (= 0 a))
