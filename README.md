@@ -1,8 +1,7 @@
 PoLiz
 =====
 
-A minimal dialect of Lisp/[Kernel][], with first-class macros, implemented in
-as many languages as possible.
+A minimal dialect of Lisp/[Kernel][], with first-class macros.
 
 [Kernel]: http://web.cs.wpi.edu/~jshutt/kernel.html
 
