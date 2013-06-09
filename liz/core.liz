@@ -1,4 +1,4 @@
-;;; core.liz --- The base module for high-level programming in PoLiz
+;;; core.liz --- The base module for high-level programming in Liz
 
 ;; -- Aliases ----------------------------------------------------------
 ($define! def $define!)

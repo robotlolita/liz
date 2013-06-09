@@ -1,6 +1,6 @@
 // # Module core
 //
-// Core runtime for PoLiz
+// Core runtime for Liz
 
 // -- Dependencies -----------------------------------------------------
 var flaw     = require('flaw')

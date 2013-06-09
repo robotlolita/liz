@@ -1,6 +1,6 @@
-# PoLiz
+# Liz
 
-PoLiz is a minimal Lisp-1 ([Kernel][]-inspired) dialect. And when I say
+Liz is a minimal Lisp-1 ([Kernel][]-inspired) dialect. And when I say
 *minimal*, I **really** mean it.
 
 [Kernel]: http://web.cs.wpi.edu/~jshutt/kernel.html
@@ -8,10 +8,10 @@ PoLiz is a minimal Lisp-1 ([Kernel][]-inspired) dialect. And when I say
 
 ## Overview
 
-PoLiz is a minimal Lisp-1 dialect, supporting functional idioms with
+Liz is a minimal Lisp-1 dialect, supporting functional idioms with
 first-class macros and proper closures.
 
-There are four types in PoLiz:
+There are four types in Liz:
 
 - Number;
 - Symbol;
@@ -23,7 +23,7 @@ All other types are derived from these.
 
 ## Semantics
 
-PoLiz is a language with first-class macros, supporting dynamic and
+Liz is a language with first-class macros, supporting dynamic and
 static/lexical scoping. This means that all functions are macros — they decide
 which arguments should be evaluated.
 
@@ -61,7 +61,7 @@ means apply `b` to the macro `a`.
 
 ## Standard library
 
-PoLiz defines a minimal standard library:
+Liz defines a minimal standard library:
 
 ### Core
 
@@ -77,7 +77,7 @@ These are the most important and basic combiners in the language:
 ;; Evaluates an expression in the given environment
 (eval expression environment) → a
 
-;; Parses a string into a proper PoLiz data structure
+;; Parses a string into a proper Liz data structure
 (read string) → expression
 
 ;; Constructs an environment, extending a parent environment

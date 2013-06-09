@@ -1,8 +1,8 @@
 Liz
 ===
 
-[![Build Status](https://travis-ci.org/killdream/poliz.png)](https://travis-ci.org/killdream/poliz)
-![Dependencies Status](https://david-dm.org/killdream/poliz.png)
+[![Build Status](https://travis-ci.org/killdream/liz.png)](https://travis-ci.org/killdream/liz)
+![Dependencies Status](https://david-dm.org/killdream/liz.png)
 
 A minimal dialect of Lisp/[Kernel][], with first-class macros.
 
@@ -27,10 +27,7 @@ See the `spec.md` for the language's specification.
 
 ## Installing / Usage
 
-    $ git clone git://github.com/killdream/poliz
-    $ cd poliz/implementations/ometa-js
-    $ npm install
-    $ cat stuff.liz | ./bin/poliz
+    $ npm install -g liz
     
 
 ## Licence

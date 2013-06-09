@@ -1,9 +1,8 @@
 {
-  "name": "poliz",
-  "description": "A minimal Lisp dialect.",
-  "version": "0.0.0",
-  "bin": "./bin/poliz",
-  "private": true,
+  "name": "liz",
+  "description": "A minimal Lisp/Kernel dialect.",
+  "version": "0.1.0",
+  "bin": "./bin/liz",
   "dependencies": {
     "ometajs": "~3.2.4",
     "flaw": "~0.1.0",
