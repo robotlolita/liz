@@ -27,7 +27,7 @@ See the `spec.md` for the language's specification.
 
 ## Installing / Usage
 
-    $ npm install -g liz
+    $ npm install -g liz-language
     
 
 ## Licence
