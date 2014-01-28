@@ -33,11 +33,25 @@ function expectType(predicate, name, actual) {
 
 
 // -- Internal helpers -------------------------------------------------
-var _nil = _cons(null, null)
+function _repr(o, n) {
+  return (o && 'repr' in o)?  o.repr(n)
+  :                           '' + o }
 
+var Cons = {
+  toString: function() {
+    return "(" + _repr(this, 100) + ")" }
+, repr: function(n) {
+    return this.head + ", " + (n > 0?  _repr(this.tail, n - 1)
+                              :        "[...]") }
+}
+
+var _nil = clone(_cons(null, null), {
+  toString: function(){ return '#Nil' }
+, repr:     function(){ return '#Nil' }
+})
 
 function _cons(a, b) {
-  return { head: a, tail: b }}
+  return clone(Cons, { head: a, tail: b }) }
 
 
 function _toList(as, a) {
@@ -92,6 +106,10 @@ var Primitive = Base.derive({
   function _call(expression, environment) {
     var args = [environment].concat(_toArray(expression))
     return this.underlying.apply(null, args) }
+
+, toString:
+  function _toString() {
+    return '#<Primitive: ' + (this._name || '(anonymous)') + '>' }
 })
 
 
@@ -104,6 +122,10 @@ var Applicative = Base.derive({
   function _call(expression, environment) {
     var args = _toArray(expression).map(_evaluateIn(environment))
     return this.underlying.apply(null, args) }
+
+, toString:
+  function _toString() {
+    return '#<Applicative: ' + (this._name || '(anonymous)') + '>' }
 })
 
 
@@ -228,18 +250,15 @@ world['unwrap']           = wrap(function(f) { return unwrap(f) })
 world['make-environment'] = wrap(makeEnvironment)
 
 world['inspect'] = wrap(function(v) {
-  if (typeof v == 'function')     console.log('>>>', v.toString())
-  else if (Object(v) === v)       console.log('>>>', inspect(v))
-  else                            console.log('>>>', JSON.stringify(v))
-
-  return v
+  console.log('>>>', v.toString())
 })
 
 world['$define!'] = primitive(function $define(env, name, exp) {
   expectType(isSymbol, 'symbol', name)
 
-  var value = evaluate(exp, env)
-  env[name] = value
+  var value   = evaluate(exp, env)
+  env[name]   = value
+  value._name = name
   return value })
 
 
@@ -281,6 +300,8 @@ world['list*'] = wrap(function() {
 // -- Logic operations -------------------------------------------------
 world['#f'] = function False(e, a, b){ return evaluate(b, e) }
 world['#t'] = function True(e, a, b){ return evaluate(a, e) }
+world['#f'].toString = function(){ return '#f' }
+world['#t'].toString = function(){ return '#t' }
 
 world['='] = wrap(bool(function isEqual(a, b) { return a === b }))
 world['<'] = wrap(bool(function isLessThan(a, b) { return a < b }))
