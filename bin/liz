@@ -12,6 +12,7 @@ var doc = "liz --- A minimal Lisp/Kernel dialect.\n"
         + "  -e, --eval         Evaluates the scripts.\n"
         + "  -p, --print        Prints results to STDOUT.\n"
         + "  -c, --compile      Compiles the file.\n"
+        + "  --std              Includes the standard library.\n"
         + "  -h, --help         Displays usage help and exits.\n"
         + "  --version          Displays version info and exits.\n"
 
@@ -46,6 +47,8 @@ function readStdin() {
 function pipe() {
   return compose.apply(null, slice(arguments).reverse()) }
 
+function loadStd(name) {
+  return read(path.join(__dirname, '../liz', name)) }
 
 // -- Promised helpers -------------------------------------------------
 var display = lift(function display(data) {
@@ -73,12 +76,15 @@ void function() {
                           .alias('e', 'eval')   .boolean('e')
                           .alias('p', 'print')  .boolean('p')
                           .alias('c', 'compile').boolean('c')
+                          .boolean('std')
                           .boolean('version')
                           .argv
 
        var help    = argv.help
        var version = argv.version
+       var std     = argv.std?    [loadStd('core.liz')] : []
        var files   = argv.stdin?  [readStdin()] : argv._.map(read)
+       files       = std.concat(files)
 
        var unify    = pipe(all, cat)
        var toAst    = pipe(unify, parse, toJson)

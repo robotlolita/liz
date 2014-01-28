@@ -304,14 +304,16 @@
 
 (defn any ((f xs))
   "True if any item passes the predicate."
-  (^if (f (head xs))  true
-       (any f (tail xs))))
+  (^cond (nil? xs)      false
+         (f (head xs))  true
+         #t             (any f (tail xs))))
 
 
 (defn all ((f xs))
   "True if all items pass the predicate."
-  (^if (not (f (head xs)))  false
-       (all f (tail xs))))
+  (^cond (nil? xs)            true
+         (not (f (head xs)))  false
+         #t                   (all f (tail xs))))
 
 
 (defn sum ((xs))

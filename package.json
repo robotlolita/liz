@@ -1,7 +1,7 @@
 {
   "name": "liz-language",
   "description": "A minimal Lisp/Kernel dialect.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "bin": { "liz": "./bin/liz" },
   "dependencies": {
     "ometajs": "~3.2.4",
