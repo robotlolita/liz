@@ -1,8 +1,8 @@
 Liz
 ===
 
-[![Build Status](https://travis-ci.org/killdream/liz.png)](https://travis-ci.org/killdream/liz)
-![Dependencies Status](https://david-dm.org/killdream/liz.png)
+[![Build Status](https://travis-ci.org/robotlolita/liz.png)](https://travis-ci.org/robotlolita/liz)
+![Dependencies Status](https://david-dm.org/robotlolita/liz.png)
 
 A minimal dialect of Lisp/[Kernel][], with first-class macros.
 
