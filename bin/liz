@@ -49,7 +49,7 @@ function pipe() {
 
 // -- Promised helpers -------------------------------------------------
 var display = lift(function display(data) {
-                     console.log(data) })
+                     console.log(data? data.toString() : data) })
 
 var cat = lift(function cat(as) {
                  return as.join('\n\n') })
