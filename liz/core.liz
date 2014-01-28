@@ -121,16 +121,16 @@
 
 
 ;; -- Arithmetic -------------------------------------------------------
-(defn * ((a b))
-  "Multiplies a by b."
-  (^cond (= b 0) 1
-         (= b 1) a
-         #t      (* (+ a a) (- b 1))))
+; (defn * ((a b))
+;   "Multiplies a by b."
+;   (^cond (= b 0) 1
+;          (= b 1) a
+;          #t      (* (+ a a) (- b 1))))
 
-(defn / ((a b))
-  "Divides a by b."
-  ;; TODO
-  )
+; (defn / ((a b))
+;   "Divides a by b."
+;   ;; TODO
+;   )
 
 (defn quotient ((a b))
   "Quotient of dividing a by b."

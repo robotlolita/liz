@@ -332,6 +332,12 @@ world['+'] = namedAp('+', wrap(function add(a, b) {
 world['-'] = namedAp('-', wrap(function sub(a, b) {
   return a - b }))
 
+world['*'] = namedAp('*', wrap(function mul(a, b) {
+  return a * b }))
+
+world['/'] = namedAp('/', wrap(function div(a, b) {
+  return a / b }))
+
 // -- Exports ----------------------------------------------------------
 module.exports = { world           : world
                  , evaluate        : evaluate
