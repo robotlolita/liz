@@ -112,12 +112,13 @@
 
 (defn > ((a b))
   "Tests if `a` is greater than `b`."
-  (not (< a b)))
+  (^and
+    (not (< a b))
+    (not (= a b))))
 
 (defn >= ((a b))
   "Tests if `a` is greater or equal to `b`."
-  (^or (> a b)
-       (= a b)))
+  (not (< a b)))
 
 
 ;; -- Arithmetic -------------------------------------------------------
