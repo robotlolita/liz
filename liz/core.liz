@@ -66,7 +66,7 @@
 
             (^if (= forms nil)  nil
                  (^if (eval test env)  (eval value env)
-                      (eval (list* cond rest) env))) })
+                      (eval (list* ^cond rest) env))) })
 
 
 (def ^let { | env bindings . body |
